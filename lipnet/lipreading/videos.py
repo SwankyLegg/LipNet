@@ -1,11 +1,11 @@
 import os
 import numpy as np
-from keras import backend as K
+from tensorflow.keras import backend as K
 from scipy import ndimage
-from scipy.misc import imresize
-import skvideo.io
+from PIL import Image
 import dlib
 from lipnet.lipreading.aligns import Align
+from lipnet.lipreading.video_reader import VideoReader
 
 class VideoAugmenter(object):
     @staticmethod
@@ -176,8 +176,8 @@ class Video(object):
 
                 normalize_ratio = MOUTH_WIDTH / float(mouth_right - mouth_left)
 
-            new_img_shape = (int(frame.shape[0] * normalize_ratio), int(frame.shape[1] * normalize_ratio))
-            resized_img = imresize(frame, new_img_shape)
+            new_img_shape = (int(frame.shape[1] * normalize_ratio), int(frame.shape[0] * normalize_ratio))
+            resized_img = np.array(Image.fromarray(frame).resize(new_img_shape, Image.Resampling.LANCZOS))
 
             mouth_centroid_norm = mouth_centroid * normalize_ratio
 
@@ -192,8 +192,7 @@ class Video(object):
         return mouth_frames
 
     def get_video_frames(self, path):
-        videogen = skvideo.io.vreader(path)
-        frames = np.array([frame for frame in videogen])
+        frames = VideoReader.read_video(path)
         return frames
 
     def set_data(self, frames):

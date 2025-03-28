@@ -1,4 +1,5 @@
-from keras import backend as K
+from tensorflow.keras import backend as K
+import numpy as np
 
 # Actual loss calculation
 def ctc_lambda_func(args):
